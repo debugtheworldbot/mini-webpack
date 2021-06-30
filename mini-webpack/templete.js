@@ -1,58 +1,12 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
-                
-                    './src/index.js' : 
+                <% __TO_REPLACE_WEBPACK_MODULES__.map(item => { %>
+                    '<%- item.file %>' : 
                     ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-                        
-__webpack_require__.r(__webpack_exports__);
-
- var __world__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("./src/world.js");
-
-const helloWorldStr = __world__WEBPACK_IMPORTED_MODULE_0__.default();
-
-function component() {
-  const element = document.createElement("div");
-  element.innerHTML = helloWorldStr;
-  return element;
-}
-
-document.body.appendChild(component());
+                        <%- item.code %>
                     }),
-                
-                    './src/world.js' : 
-                    ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-                        
-__webpack_require__.r(__webpack_exports__);
-
- 
-__webpack_require__.d(__webpack_exports__, {
-   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-});
-
- var __hello__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("./src/hello.js");
-
-const world = "world";
-
-const helloWorld = () => `${__hello__WEBPACK_IMPORTED_MODULE_1__.default} from ${world}`;
-
-const __WEBPACK_DEFAULT_EXPORT__ = helloWorld;
-                    }),
-                
-                    './src/hello.js' : 
-                    ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-                        
-__webpack_require__.r(__webpack_exports__);
-
- 
-__webpack_require__.d(__webpack_exports__, {
-   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-});
-
- const hello = "hello";
-const __WEBPACK_DEFAULT_EXPORT__ = hello;
-                    }),
-                
+                <% }) %>
             });
             
     /************************************************************************/
@@ -111,7 +65,7 @@ const __WEBPACK_DEFAULT_EXPORT__ = hello;
     /************************************************************************/
     /******/ 	// startup
     /******/ 	// Load entry module
-    /******/ 	__webpack_require__('./src/index.js');
+    /******/ 	__webpack_require__('<%- __TO_REPLACE_WEBPACK_ENTRY__ %>');
     /******/ 	// This entry module used 'exports' so it can't be inlined
     /******/ })()
     ;

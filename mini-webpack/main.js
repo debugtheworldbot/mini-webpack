@@ -5,7 +5,17 @@ const config = require("../webpack.config");
 const traverse = require("@babel/traverse").default;
 const t = require("@babel/types");
 const generate = require("@babel/generator").default;
-const { entries } = require("lodash");
+const ejs = require("ejs");
+
+let moduleNum = 0;
+const EXPORT_DEFAULT_FUN = `
+__webpack_require__.d(__webpack_exports__, {
+   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+});\n
+`;
+const ESMODULE_TAG_FUN = `
+__webpack_require__.r(__webpack_exports__);\n
+`;
 
 const parseFile = (file) => {
   const fileContent = fs.readFileSync(file, "utf-8");
@@ -13,6 +23,7 @@ const parseFile = (file) => {
   let importFilePath = "";
   let importVarName = "";
   let importCovertVarName = "";
+  let hasExport = false;
   traverse(ast, {
     ImportDeclaration(p) {
       const fileName = p.node.source.value;
@@ -24,8 +35,8 @@ const parseFile = (file) => {
 
       importCovertVarName = `__${path.basename(
         fileName
-      )}__WEBPACK_IMPORTED_MODULE_0__`;
-
+      )}__WEBPACK_IMPORTED_MODULE_${moduleNum}__`;
+      moduleNum++;
       const variableDelacration = t.variableDeclaration("var", [
         t.variableDeclarator(
           t.identifier(importCovertVarName),
@@ -41,9 +52,28 @@ const parseFile = (file) => {
         p.node.callee.name = `${importCovertVarName}.default`;
       }
     },
+    Identifier(p) {
+      if (p.node.name === importVarName) {
+        p.node.name = `${importCovertVarName}.default`;
+      }
+    },
+    ExportDefaultDeclaration(p) {
+      hasExport = true;
+      const variableDelacration = t.variableDeclaration("const", [
+        t.variableDeclarator(
+          t.identifier("__WEBPACK_DEFAULT_EXPORT__"),
+          t.identifier(p.node.declaration.name)
+        ),
+      ]);
+      p.replaceWith(variableDelacration);
+    },
   });
 
-  const newCode = generate(ast).code;
+  let newCode = generate(ast).code;
+  if (hasExport) {
+    newCode = `${EXPORT_DEFAULT_FUN} ${newCode}`;
+  }
+  newCode = `${ESMODULE_TAG_FUN} ${newCode}`;
   return {
     file,
     dependences: [importFilePath],
@@ -62,4 +92,18 @@ const parseFiles = (entryFile) => {
   return results;
 };
 
-console.log(parseFiles(config.entry));
+const generateCode = (allAst, entry) => {
+  const tempFile = fs.readFileSync(
+    path.join(__dirname, "./templete.js"),
+    "utf-8"
+  );
+  const codes = ejs.render(tempFile, {
+    __TO_REPLACE_WEBPACK_MODULES__: allAst,
+    __TO_REPLACE_WEBPACK_ENTRY__: entry,
+  });
+  return codes;
+};
+
+const allAst = parseFiles(config.entry);
+const codes = generateCode(allAst, config.entry);
+fs.writeFileSync(path.join(config.output.path, config.output.filename), codes);
