@@ -1,0 +1,23 @@
+{
+  "name": "minipack",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "tian <istiancz@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "webpack": "^5.4.0",
+    "webpack-cli": "^4.2.0"
+  },
+  "dependencies": {
+    "@babel/core": "^7.12.13",
+    "@babel/generator": "^7.12.13",
+    "@babel/parser": "^7.12.14",
+    "@babel/traverse": "^7.12.13",
+    "@babel/types": "^7.12.13",
+    "ejs": "^3.1.6",
+    "lodash": "^4.17.20"
+  }
+}
